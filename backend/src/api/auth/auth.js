@@ -10,22 +10,23 @@ const signup = async(req,res)=>{
   if(!email.trim().includes('@')){
     return res.status(400).json('Invalid email!')
   }
-  if(password.trim()<8){
+  if(password.trim().length < 8){
     return res.status(400).json('Password should be atleast 8 characters long!')
   }
   try{
     const salt = 10;
     const hashedPassword = await bcrypt.hash(password, salt);
-    const sql = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO Users (username, email, password_hash) VALUES (?, ?, ?)';
     const [result] = await pool.execute(sql, [username, email, hashedPassword]);
     console.log('user created successfully')
     return res.status(201).json('User created successfully')
   }
   catch(err){
+    console.error('Signup error:', err)
     if(err.code === 'ER_DUP_ENTRY'){
       return res.status(400).json('User with this email already exists!')
     }
-    return res.status(500).json('Server Error')
+    return res.status(500).json(`Server Error: ${err.message}`)
   }
 }
 
@@ -35,13 +36,13 @@ const login = async(req,res)=>{
     return res.status(400).json('All fields are require!')
   }
   try{
-    const sql = 'SELECT * FROM users WHERE email = ?'
+    const sql = 'SELECT * FROM Users WHERE email = ?'
     const [rows] = await pool.execute(sql, [email])
     if(rows.length === 0){
       return res.status(400).json('Invalid email or password!')
     }
     const user = rows[0]
-    const isMatch = await bcrypt.compare(password, user.password)
+    const isMatch = await bcrypt.compare(password, user.password_hash)
     if(!isMatch){
       return res.status(400).json('Invalid email or password!')
     }
@@ -61,7 +62,8 @@ const login = async(req,res)=>{
     res.json({message: 'Login successful'})
   }
   catch(err){
-    return res.status(500).json('Server Error')
+    console.error('Login error:', err)
+    return res.status(500).json(`Server Error: ${err.message}`)
   }
 }
 
