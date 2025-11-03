@@ -98,7 +98,7 @@ const LoginPage = ({ onLogin }) => {
           <span className="logo-text">StudyMate</span>
         </div>
         
-        <div className="tabs">
+        <div className={`tabs ${!isLogin ? 'slider-signup' : ''}`}>
           <button 
             className={`tab-button ${isLogin ? 'active' : ''}`}
             onClick={() => {
@@ -125,7 +125,7 @@ const LoginPage = ({ onLogin }) => {
           </button>
         </div>
         
-        <h2 className="welcome-text">{isLogin ? 'Welcome Back!' : 'Hello!'}</h2>
+        <h2 className="welcome-text">{isLogin ? 'Welcome Back!' : 'Hi there!'}</h2>
         
         <form className="login-form" onSubmit={handleSubmit}>
           {!isLogin && (
