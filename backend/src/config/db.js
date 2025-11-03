@@ -11,7 +11,7 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
     port: process.env.DB_PORT,
     ssl: {
-        ca: fs.readFileSync(process.env.DB_SSL_PATH)
+      ca: process.env.CA_CERT
     },
     waitForConnections: true,
     connectionLimit: 10,
