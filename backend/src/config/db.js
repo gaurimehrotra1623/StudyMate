@@ -24,7 +24,7 @@ pool.getConnection()
     connection.release();
   })
   .catch(err => {
-    console.error(' Error connecting to the database pool:');
+    console.error('Error connecting to the database pool:');
     console.error(err.message);
   });
 
