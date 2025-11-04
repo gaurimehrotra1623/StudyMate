@@ -6,7 +6,7 @@ const Dashboard = ({ onLogout }) => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        'http://localhost:3000/api/auth/logout',
+        'https://studymate-1fui.onrender.com/api/auth/logout',
         {},
         {
           withCredentials: true

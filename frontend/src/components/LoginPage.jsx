@@ -25,7 +25,7 @@ const LoginPage = ({ onLogin }) => {
         }
 
         const response = await axios.post(
-          'http://localhost:3000/api/auth/login',
+          'https://studymate-1fui.onrender.com/api/auth/login',
           {
             email: email,
             password: password
@@ -47,7 +47,7 @@ const LoginPage = ({ onLogin }) => {
         }
 
         const response = await axios.post(
-          'http://localhost:3000/api/auth/signup',
+          'https://studymate-1fui.onrender.com/api/auth/signup',
           {
             username: username,
             email: email,
