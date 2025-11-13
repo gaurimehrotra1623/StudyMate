@@ -27,7 +27,7 @@ const validate = async(req,res,next)=>{
           // Generate new access token
           const payload = {
             user: {
-              id: user.id,
+              id: user.user_id,
               username: user.username,
               email: user.email
             }
@@ -84,7 +84,7 @@ const validate = async(req,res,next)=>{
             // Generate new access token
             const payload = {
               user: {
-                id: user.id,
+                id: user.user_id,
                 username: user.username,
                 email: user.email
               }
