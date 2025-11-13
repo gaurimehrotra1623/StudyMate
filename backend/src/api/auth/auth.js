@@ -48,20 +48,20 @@ const login = async(req,res)=>{
     }
     const payload = {
       user: {
-        id: user.id,
+        id: user.user_id,
         username: user.username,
         email: user.email
       }
     }
     const accessToken = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '15m'})
     const refreshToken = JWT.sign(
-      { userId: user.id },
+      { userId: user.user_id },
       process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
       { expiresIn: '7d' }
     )
 
     const refreshTokenSql = 'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))'
-    await pool.execute(refreshTokenSql, [user.id, refreshToken])
+    await pool.execute(refreshTokenSql, [user.user_id, refreshToken])
     
     res.cookie('token', accessToken, {
       httpOnly: true,
@@ -116,7 +116,7 @@ const refresh = async(req,res)=>{
     
     const payload = {
       user: {
-        id: user.id,
+        id: user.user_id,
         username: user.username,
         email: user.email
       }
