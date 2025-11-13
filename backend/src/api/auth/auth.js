@@ -53,12 +53,30 @@ const login = async(req,res)=>{
         email: user.email
       }
     }
-    const token = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '1h'})
-    res.cookie('token', token, {
+    const accessToken = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '15m'})
+    const refreshToken = JWT.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    const refreshTokenSql = 'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))'
+    await pool.execute(refreshTokenSql, [user.id, refreshToken])
+    
+    res.cookie('token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 3600000
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000 
     })
+    
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 
+    })
+    
     res.json({message: 'Login successful'})
   }
   catch(err){
@@ -68,16 +86,93 @@ const login = async(req,res)=>{
 }
 
 
-const logout = async(req,res)=>{
-  const token = req.cookies.token
-  if(!token){
-    return res.status(400).json('No token found!')
+const refresh = async(req,res)=>{
+  const refreshToken = req.cookies.refreshToken
+  if(!refreshToken){
+    return res.status(401).json('No refresh token found!')
   }
-  res.clearCookie('token',{
+  
+  try{
+    const decoded = JWT.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+    )
+    
+    const checkTokenSql = 'SELECT * FROM refresh_tokens WHERE token = ? AND user_id = ? AND expires_at > NOW()'
+    const [tokenRows] = await pool.execute(checkTokenSql, [refreshToken, decoded.userId])
+    
+    if(tokenRows.length === 0){
+      return res.status(401).json('Invalid or expired refresh token!')
+    }
+    
+    const userSql = 'SELECT * FROM Users WHERE id = ?'
+    const [userRows] = await pool.execute(userSql, [decoded.userId])
+    
+    if(userRows.length === 0){
+      return res.status(401).json('User not found!')
+    }
+    
+    const user = userRows[0]
+    
+    const payload = {
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email
+      }
+    }
+    const newAccessToken = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '15m'})
+    
+
+    res.cookie('token', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000 
+    })
+    
+    res.json({message: 'Token refreshed successfully'})
+  }
+  catch(err){
+    console.error('Refresh token error:', err)
+    if(err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError'){
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      })
+      return res.status(401).json('Invalid or expired refresh token!')
+    }
+    return res.status(500).json(`Server Error: ${err.message}`)
+  }
+}
+
+const logout = async(req,res)=>{
+  const refreshToken = req.cookies.refreshToken
+  
+  res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production'
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
   })
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  })
+  
+  if(refreshToken){
+    try{
+      const deleteTokenSql = 'DELETE FROM refresh_tokens WHERE token = ?'
+      await pool.execute(deleteTokenSql, [refreshToken])
+    }
+    catch(err){
+      console.error('Error deleting refresh token:', err)
+    }
+  }
+  
   res.json({message: 'Logout successful'})
 }
 
-module.exports = {signup, login, logout}
+module.exports = {signup, login, logout, refresh}
+

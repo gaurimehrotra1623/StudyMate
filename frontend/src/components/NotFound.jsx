@@ -12,13 +12,11 @@ function NotFound() {
           <span className="brand-text">StudyMate</span>
         </Link>
 
-        {/* <div className="notfound-badge">404</div> */}
         <h1 className="notfound-title">This URL doesn’t exist</h1>
         <p className="notfound-subtitle">Please check your URL and try again.</p>
 
         <div className="notfound-actions">
           <Link className="notfound-button primary" to="/">Go to Login Page</Link>
-          {/* <a className="notfound-button secondary" href="mailto:support@studymate.app">Contact Support</a> */}
         </div>
       </div>
     </div>
