@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 const app=express();
 
 app.use(cors({
-  origin: ['http://localhost:5173',' https://study-mate-phi-lac.vercel.app'],
+  origin: ['http://localhost:5173','https://study-mate-dvklf0xoj-gauris-projects-e00c6357.vercel.app/'],
   credentials: true
 }))
 
