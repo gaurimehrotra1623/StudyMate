@@ -16,7 +16,7 @@ function NotFound() {
         <p className="notfound-subtitle">Please check your URL and try again.</p>
 
         <div className="notfound-actions">
-          <Link className="notfound-button primary" to="/">Go to Login Page</Link>
+          <Link className="notfound-button primary" to="/">Go Back</Link>
         </div>
       </div>
     </div>
