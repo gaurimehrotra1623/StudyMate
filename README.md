@@ -1,4 +1,4 @@
-# StudyMate 🎓
+# StudyMate 
 
 A Collaborative Study Tracker
 
@@ -111,70 +111,6 @@ StudyMate/
 └── README.md
 ```
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v14 or higher)
-- MySQL database
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd StudyMate
-   ```
-
-2. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   ```
-
-3. **Frontend Setup**
-   ```bash
-   cd ../frontend
-   npm install
-   ```
-
-### Configuration
-
-1. **Backend Environment Variables**
-   Create a `.env` file in the `backend/` directory:
-   ```env
-   PORT=3000
-   DB_HOST=your_db_host
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_NAME=studymate
-   JWT_SECRET=your_jwt_secret_key
-   ```
-
-2. **Database Setup**
-   - Create a MySQL database
-   - Run the SQL script to create the refresh tokens table:
-     ```bash
-     mysql -u your_user -p your_database < backend/create_refresh_tokens_table.sql
-     ```
-
-### Running the Application
-
-1. **Start the Backend Server**
-   ```bash
-   cd backend
-   npm start
-   ```
-   The server will run on `http://localhost:3000`
-
-2. **Start the Frontend Development Server**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   The app will be available at `http://localhost:5173`
-
 ## Features in Detail
 
 ### Dashboard
@@ -190,9 +126,8 @@ StudyMate/
 - Cookie-based session management
 - Protected routes
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Hosted Link (Frontend)
+- https://study-mate-phi-lac.vercel.app/
 
 ## License
 
