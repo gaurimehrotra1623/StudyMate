@@ -31,6 +31,7 @@ const signup = async(req,res)=>{
 }
 
 const login = async(req,res)=>{
+  console.log("LOGIN HIT");
   const {email, password} = req.body
   if(!email || !password){
     return res.status(400).json('All fields are require!')
@@ -60,6 +61,11 @@ const login = async(req,res)=>{
       { expiresIn: '7d' }
     )
 
+    console.log('=== JWT TOKENS ===')
+    console.log('Access Token:', accessToken)
+    console.log('Refresh Token:', refreshToken)
+    console.log('==================')
+
     const refreshTokenSql = 'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))'
     await pool.execute(refreshTokenSql, [user.user_id, refreshToken])
     
@@ -77,7 +83,11 @@ const login = async(req,res)=>{
       maxAge: 7 * 24 * 60 * 60 * 1000 
     })
     
-    res.json({message: 'Login successful'})
+    res.json({
+      message: 'Login successful',
+      accessToken: accessToken,
+      refreshToken: refreshToken
+    })
   }
   catch(err){
     console.error('Login error:', err)
@@ -123,6 +133,9 @@ const refresh = async(req,res)=>{
     }
     const newAccessToken = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '15m'})
     
+    console.log('=== REFRESHED JWT TOKEN ===')
+    console.log('Access Token:', newAccessToken)
+    console.log('===========================')
 
     res.cookie('token', newAccessToken, {
       httpOnly: true,
@@ -131,7 +144,10 @@ const refresh = async(req,res)=>{
       maxAge: 15 * 60 * 1000 
     })
     
-    res.json({message: 'Token refreshed successfully'})
+    res.json({
+      message: 'Token refreshed successfully',
+      accessToken: newAccessToken
+    })
   }
   catch(err){
     console.error('Refresh token error:', err)

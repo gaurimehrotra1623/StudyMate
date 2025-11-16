@@ -15,12 +15,11 @@ app.use(cors({
 app.options("*", cors());
 app.use(cookie())
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', port: port })
 })
-
-//checking for error
 
 app.use('/api/auth', router)
 app.listen(port, ()=>{

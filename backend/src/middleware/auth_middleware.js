@@ -4,27 +4,21 @@ const pool = require('../config/db.js')
 const validate = async(req,res,next)=>{
   const token = req.cookies.token
   const refreshToken = req.cookies.refreshToken
-  
-  // If no access token but refresh token exists, try to refresh
   if(!token && refreshToken){
     try{
       const decoded = JWT.verify(
         refreshToken,
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
       )
-      
-      // Check if refresh token exists in database
       const checkTokenSql = 'SELECT * FROM refresh_tokens WHERE token = ? AND user_id = ? AND expires_at > NOW()'
       const [tokenRows] = await pool.execute(checkTokenSql, [refreshToken, decoded.userId])
       
       if(tokenRows.length > 0){
-        // Get user data
         const userSql = 'SELECT * FROM Users WHERE id = ?'
         const [userRows] = await pool.execute(userSql, [decoded.userId])
         
         if(userRows.length > 0){
           const user = userRows[0]
-          // Generate new access token
           const payload = {
             user: {
               id: user.user_id,
@@ -33,8 +27,8 @@ const validate = async(req,res,next)=>{
             }
           }
           const newAccessToken = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '15m'})
+          console.log('JWT Token' , newAccessToken)
           
-          // Set new access token in cookie
           res.cookie('token', newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -48,7 +42,6 @@ const validate = async(req,res,next)=>{
       }
     }
     catch(err){
-      // Refresh token invalid, continue to error below
     }
   }
   
@@ -63,25 +56,21 @@ const validate = async(req,res,next)=>{
   }
   catch(err){
     if(err.name === 'TokenExpiredError' && refreshToken){
-      // Access token expired, try to refresh
       try{
         const decoded = JWT.verify(
           refreshToken,
           process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
         )
         
-        // Check if refresh token exists in database
         const checkTokenSql = 'SELECT * FROM refresh_tokens WHERE token = ? AND user_id = ? AND expires_at > NOW()'
         const [tokenRows] = await pool.execute(checkTokenSql, [refreshToken, decoded.userId])
         
         if(tokenRows.length > 0){
-          // Get user data
           const userSql = 'SELECT * FROM Users WHERE id = ?'
           const [userRows] = await pool.execute(userSql, [decoded.userId])
           
           if(userRows.length > 0){
             const user = userRows[0]
-            // Generate new access token
             const payload = {
               user: {
                 id: user.user_id,
@@ -90,8 +79,7 @@ const validate = async(req,res,next)=>{
               }
             }
             const newAccessToken = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '15m'})
-            
-            // Set new access token in cookie
+            console.log('JWT Token' , newAccessToken)
             res.cookie('token', newAccessToken, {
               httpOnly: true,
               secure: process.env.NODE_ENV === 'production',
