@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 const app=express();
 
 app.use(cors({
-  origin: ['http://localhost:5173','https://study-mate-dvklf0xoj-gauris-projects-e00c6357.vercel.app', 'https://study-mate-phi-lac.vercel.app', 'https://study-mate-jt8nhm8yk-gauris-projects-e00c6357.vercel.app/'],
+  origin: ['http://localhost:5173','https://study-mate-dvklf0xoj-gauris-projects-e00c6357.vercel.app', 'https://study-mate-phi-lac.vercel.app', 'https://study-mate-jt8nhm8yk-gauris-projects-e00c6357.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }))
