@@ -14,16 +14,24 @@ const LoginPage = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMessage('')
+
+    if (isLogin) {
+      if (!email || !password) {
+        setMessage('All fields are required!')
+        return
+      }
+    } else {
+      if (!username || !email || !password) {
+        setMessage('All fields are required!')
+        return
+      }
+    }
+
     setIsLoading(true)
+    let keepLoaderActive = false
 
     try {
       if (isLogin) {
-        if (!email || !password) {
-          setMessage('All fields are required!')
-          setIsLoading(false)
-          return
-        }
-
         const response = await axios.post(
           'https://studymate-1fui.onrender.com/api/auth/login',
           {
@@ -36,16 +44,11 @@ const LoginPage = ({ onLogin }) => {
         )
 
         setMessage(response.data.message || 'Login successful')
+        keepLoaderActive = true
         setTimeout(() => {
           onLogin()
-        }, 500)
+        }, 600)
       } else {
-        if (!username || !email || !password) {
-          setMessage('All fields are required!')
-          setIsLoading(false)
-          return
-        }
-
         const response = await axios.post(
           'https://studymate-1fui.onrender.com/api/auth/signup',
           {
@@ -59,26 +62,29 @@ const LoginPage = ({ onLogin }) => {
         )
 
         setMessage(response.data || 'User created successfully')
+        keepLoaderActive = true
         setTimeout(() => {
           onLogin()
-        }, 500)
+        }, 600)
       }
     } catch (error) {
       if (error.response) {
-        const errorMessage = typeof error.response.data === 'string' 
-          ? error.response.data 
+        const errorMessage = typeof error.response.data === 'string'
+          ? error.response.data
           : error.response.data.message || 'An error occurred'
         setMessage(errorMessage)
       } else {
         setMessage('Error: Could not connect to server')
       }
     } finally {
-      setIsLoading(false)
+      if (!keepLoaderActive) {
+        setIsLoading(false)
+      }
     }
   }
 
   return (
-    <div className="login-container">
+    <div className="login-container" aria-busy={isLoading}>
       <div className="marketing-panel">
         <div className="image-bubble-container">
           <div className="image-bubble">
@@ -202,6 +208,20 @@ const LoginPage = ({ onLogin }) => {
           )}
         </div>
       </div>
+      {isLoading && (
+        <div className="loader-overlay" role="alert" aria-live="assertive">
+          <div className="loader-card">
+            <div className="loader-circle" aria-hidden="true">
+              <span className="loader-ring" />
+              <img src="/logo.png" alt="StudyMate logo" className="loader-logo" />
+            </div>
+            <p className="loader-title">
+              {isLogin ? 'Logging you in' : 'Creating account'}
+            </p>
+            <p className="loader-subtitle">Just a moment...</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
