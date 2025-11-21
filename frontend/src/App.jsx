@@ -8,7 +8,6 @@ import './App.css'
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  // Initialize auth state from localStorage so refresh keeps user on dashboard
   useEffect(() => {
     const stored = localStorage.getItem('studymate:isAuthenticated')
     if (stored === 'true') {
