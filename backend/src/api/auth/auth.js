@@ -105,7 +105,7 @@ const refresh = async (req, res) => {
       refreshToken,
       process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
     );
-    const check_token = await prisma.refresh_tokens.findUnique({
+    const check_token = await prisma.refresh_token.findUnique({
       where: { token: refreshToken }
     });
     if (!check_token) {
@@ -157,7 +157,7 @@ const logout = async (req, res) => {
   res.clearCookie('refreshToken');
   if (refreshToken) {
     try {
-      await prisma.refresh_tokens.delete({
+      await prisma.refresh_token.delete({
         where: { token: refreshToken }
       });
     } catch (err) {
