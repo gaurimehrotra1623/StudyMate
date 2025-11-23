@@ -1,5 +1,6 @@
 const JWT = require('jsonwebtoken')
-const pool = require('../config/db.js')
+const {PrismaClient} = require('@prisma/client')
+const prisma = new PrismaClient()
 
 const validate = async(req,res,next)=>{
   const token = req.cookies.token
@@ -10,15 +11,21 @@ const validate = async(req,res,next)=>{
         refreshToken,
         process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
       )
-      const checkTokenSql = 'SELECT * FROM refresh_tokens WHERE token = ? AND user_id = ? AND expires_at > NOW()'
-      const [tokenRows] = await pool.execute(checkTokenSql, [refreshToken, decoded.userId])
-      
-      if(tokenRows.length > 0){
-        const userSql = 'SELECT * FROM Users WHERE id = ?'
-        const [userRows] = await pool.execute(userSql, [decoded.userId])
+      const tokenRow = await prisma.refresh_token.findFirst({
+        where: {
+          token: refreshToken,
+          user_id: decoded.userId,
+          expires_at: {
+            gt: new Date()
+          }
+        }
+      })
+      if(tokenRow){
+        const user = await prisma.users.findUnique({
+          where: { user_id: decoded.userId }
+        })
         
-        if(userRows.length > 0){
-          const user = userRows[0]
+        if(user){
           const payload = {
             user: {
               id: user.user_id,
@@ -44,7 +51,6 @@ const validate = async(req,res,next)=>{
     catch(err){
     }
   }
-  
   if(!token){
     return res.status(401).json('No token found, authorization denied')
   }
@@ -62,15 +68,22 @@ const validate = async(req,res,next)=>{
           process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
         )
         
-        const checkTokenSql = 'SELECT * FROM refresh_tokens WHERE token = ? AND user_id = ? AND expires_at > NOW()'
-        const [tokenRows] = await pool.execute(checkTokenSql, [refreshToken, decoded.userId])
+        const tokenRow = await prisma.refresh_token.findFirst({
+          where: {
+            token: refreshToken,
+            user_id: decoded.userId,
+            expires_at: {
+              gt: new Date()
+            }
+          }
+        })
         
-        if(tokenRows.length > 0){
-          const userSql = 'SELECT * FROM Users WHERE id = ?'
-          const [userRows] = await pool.execute(userSql, [decoded.userId])
+        if(tokenRow){
+          const user = await prisma.users.findUnique({
+            where: { user_id: decoded.userId }
+          })
           
-          if(userRows.length > 0){
-            const user = userRows[0]
+          if(user){
             const payload = {
               user: {
                 id: user.user_id,

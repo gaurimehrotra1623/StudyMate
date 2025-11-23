@@ -7,14 +7,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users{
-  user_id Int @id @default(autoincrement())
-  username String @unique
-  email String @unique 
-  password_hash String 
-  created_at  DateTime @default(now())
+model Users {
+  user_id        Int            @id @default(autoincrement())
+  username       String         @unique
+  email          String         @unique
+  password_hash  String
+  created_at     DateTime       @default(now())
   refresh_tokens refresh_token[]
+  goals          Goal[]
+  activities     Activity[]
+  friendshipsA   Friendship[]   @relation("UserA")
+  friendshipsB   Friendship[]   @relation("UserB")
+  goalCollaborations UserGoalCollaborator[]
 }
+
+model Goal {
+  goal_id     Int       @id @default(autoincrement())
+  title       String
+  due_date    DateTime
+  progress    Int       @default(0)
+  owner_id    Int
+  owner       Users     @relation(fields: [owner_id], references: [user_id])
+  collaborators UserGoalCollaborator[]
+}
+
+
+model UserGoalCollaborator {
+  id       Int   @id @default(autoincrement())
+  user_id  Int
+  goal_id  Int
+  user     Users @relation(fields: [user_id], references: [user_id])
+  goal     Goal  @relation(fields: [goal_id], references: [goal_id])
+}
+
+model Friendship {
+  id      Int    @id @default(autoincrement())
+  userA   Users  @relation("UserA", fields: [userA_id], references: [user_id])
+  userA_id Int
+  userB   Users  @relation("UserB", fields: [userB_id], references: [user_id])
+  userB_id Int
+}
+
+model Activity {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  type      String   // "completed_goal", "created_goal", etc.
+  message   String
+  createdAt DateTime @default(now())
+  user      Users    @relation(fields: [user_id], references: [user_id])
+}
+
 
 model refresh_token{
   id Int @id @default(autoincrement())
