@@ -5,6 +5,8 @@ const prisma = new PrismaClient()
 const validate = async(req,res,next)=>{
   const token = req.cookies.token
   const refreshToken = req.cookies.refreshToken
+  
+  
   if(!token && refreshToken){
     try{
       const decoded = JWT.verify(
@@ -34,7 +36,6 @@ const validate = async(req,res,next)=>{
             }
           }
           const newAccessToken = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '15m'})
-          console.log('JWT Token' , newAccessToken)
           
           res.cookie('token', newAccessToken, {
             httpOnly: true,
@@ -92,7 +93,6 @@ const validate = async(req,res,next)=>{
               }
             }
             const newAccessToken = JWT.sign(payload, process.env.JWT_SECRET, {expiresIn: '15m'})
-            console.log('JWT Token' , newAccessToken)
             res.cookie('token', newAccessToken, {
               httpOnly: true,
               secure: process.env.NODE_ENV === 'production',

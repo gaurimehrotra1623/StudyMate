@@ -29,6 +29,7 @@ const Dashboard = ({ onLogout }) => {
     ],
     []
   )
+   
 
   const friendSuggestions = useMemo(
     () => [
@@ -280,4 +281,3 @@ const Dashboard = ({ onLogout }) => {
 }
 
 export default Dashboard
-
