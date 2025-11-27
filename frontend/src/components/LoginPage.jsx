@@ -42,6 +42,8 @@ const LoginPage = ({ onLogin }) => {
             withCredentials: true
           }
         )
+        localStorage.setItem("accessToken", response.data.accessToken);
+        localStorage.setItem("refreshToken", response.data.refreshToken);
 
         setMessage(response.data.message || 'Login successful')
         keepLoaderActive = true
