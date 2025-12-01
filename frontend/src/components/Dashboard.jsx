@@ -40,16 +40,13 @@ const Dashboard = ({ onLogout }) => {
 
       if (response.data.success && response.data.data) {
         const data = response.data.data
-
-        // User info - set username from backend
         if (data.user) {
           setUser({
             name: data.user.username || data.user.email?.split('@')[0] || 'User',
-            streakDays: 7 // TODO: compute real streak from activity
+            streakDays: 7
           })
         }
 
-        // Goals
         const transformedGoals =
           data.ongoingGoals?.map((goal) => ({
             id: goal.goal_id,
@@ -66,20 +63,16 @@ const Dashboard = ({ onLogout }) => {
           })) || []
         setOngoingGoals(transformedGoals)
 
-        // Friend suggestions
-        const avatars = ['👩‍💻', '👨‍🎓', '👩‍🔬', '👨‍💼', '👩‍🎨', '👨‍⚕️']
+        const avatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁']
         const transformedSuggestions =
           data.friendSuggestions?.map((friend, index) => ({
             id: friend.user_id,
             name: friend.username,
-            avatar: avatars[index % avatars.length],
-            description: 'StudyMate user',
-            mutualFriends: Math.floor(Math.random() * 5) + 1 // placeholder
+            avatar: avatars[index % avatars.length]
           })) || []
         setFriendSuggestions(transformedSuggestions)
-
-        // Friends activity
-        const activityAvatars = ['👩‍💻', '👨‍🎓', '👨‍💼', '👩‍🔬', '👩‍🎨']
+              
+        const activityAvatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁']
         const transformedActivity =
           data.friendsActivity?.map((activity, index) => ({
             id: activity.id,
@@ -94,7 +87,6 @@ const Dashboard = ({ onLogout }) => {
       console.error('Error fetching dashboard data:', error)
       console.error('Error response:', error.response?.data)
       console.error('Error status:', error.response?.status)
-      // If 401, let App handle auth state; just stay on page for now
     } finally {
       setLoading(false)
     }
@@ -115,17 +107,14 @@ const Dashboard = ({ onLogout }) => {
   }
 
   const handleAddFriend = (friendId) => {
-    // Optional: wire to backend later
     console.log('Adding friend:', friendId)
   }
 
   const handleReact = (activityId, reaction) => {
-    // In real app, this would make an API call
     console.log('Reacting to activity:', activityId, 'with', reaction)
   }
 
   const handleMessage = (activityId, friendName) => {
-    // In real app, this would open a message dialog or navigate to chat
     console.log('Messaging about activity:', activityId, 'from', friendName)
   }
 
@@ -133,9 +122,7 @@ const Dashboard = ({ onLogout }) => {
 
   const handleAddGoal = (e) => {
     e.preventDefault()
-    // In real app, this would make an API call to add the goal
     console.log('Adding new goal:', newGoal)
-    // Reset form
     setNewGoal({ title: '', due: '', collaborators: '' })
   }
 
@@ -197,11 +184,6 @@ const Dashboard = ({ onLogout }) => {
           <div className="welcome">
             <h1 className="welcome-title">Welcome back, {user.name} 👋</h1>
             <p className="welcome-sub">Keep up the momentum. You’re doing great!</p>
-          </div>
-          <div className="streak-bubble" title={`${user.streakDays}-day streak`}>
-            <span className="flame">🔥</span>
-            <span className="streak-count">{user.streakDays}</span>
-            <span className="streak-label">day streak</span>
           </div>
         </header>
 
@@ -302,7 +284,6 @@ const Dashboard = ({ onLogout }) => {
                 <div className="friend-avatar">{friend.avatar}</div>
                 <h3 className="friend-name">{friend.name}</h3>
                 <p className="friend-description">{friend.description}</p>
-                <p className="friend-mutual">{friend.mutualFriends} mutual friends</p>
                 <button 
                   className="friend-add-btn"
                   onClick={() => handleAddFriend(friend.id)}

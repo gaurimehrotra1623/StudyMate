@@ -6,7 +6,7 @@ import Dashboard from './components/Dashboard'
 import NotFound from './components/NotFound'
 import './App.css'
 
-const API_BASE_URL = 'https://studymate-1fui.onrender.com'
+const API_BASE_URL = 'http://localhost:3000'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
