@@ -1,12 +1,20 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import './Dashboard.css'
 
+const API_BASE_URL = 'https://studymate-1fui.onrender.com'
+
 const Dashboard = ({ onLogout }) => {
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState({ name: '', streakDays: 0 })
+  const [ongoingGoals, setOngoingGoals] = useState([])
+  const [friendSuggestions, setFriendSuggestions] = useState([])
+  const [friendsActivity, setFriendsActivity] = useState([])
+
   const handleLogout = async () => {
     try {
       await axios.post(
-        'https://studymate-1fui.onrender.com/api/auth/logout',
+        `${API_BASE_URL}/api/auth/logout`,
         {},
         {
           withCredentials: true
@@ -19,32 +27,95 @@ const Dashboard = ({ onLogout }) => {
     }
   }
 
-  // Demo data for personalization and goals; in real app, fetch from API
-  const user = useMemo(() => ({ name: 'Gauri', streakDays: 7 }), [])
-  const ongoingGoals = useMemo(
-    () => [
-      { id: 1, title: 'Finish React Router Module', progress: 65, due: 'Nov 10', collaborators: ['Alice', 'Bob'] },
-      { id: 2, title: 'Read 3 chapters of DSA', progress: 40, due: 'Nov 12', collaborators: ['Charlie', 'Diana'] },
-      { id: 3, title: 'Build Notes Feature', progress: 20, due: 'Nov 18', collaborators: ['-'] }
-    ],
-    []
-  )
-   
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
 
-  const friendSuggestions = useMemo(
-    () => [
-      { id: 1, name: 'Sarah Johnson', avatar: '👩‍💻', description: 'Engineering student', mutualFriends: 3 },
-      { id: 2, name: 'Mike Chen', avatar: '👨‍🎓', description: 'Computer Science major', mutualFriends: 5 },
-      { id: 3, name: 'Emma Wilson', avatar: '👩‍🔬', description: 'Biology researcher', mutualFriends: 2 },
-      { id: 4, name: 'David Lee', avatar: '👨‍💼', description: 'Business student', mutualFriends: 4 },
-      { id: 5, name: 'Lisa Park', avatar: '👩‍🎨', description: 'Design student', mutualFriends: 1 },
-      { id: 6, name: 'James Brown', avatar: '👨‍⚕️', description: 'Medical student', mutualFriends: 6 }
-    ],
-    []
-  )
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get(`${API_BASE_URL}/api/dashboard`, {
+        withCredentials: true
+      })
+
+      if (response.data.success && response.data.data) {
+        const data = response.data.data
+
+        // User info - set username from backend
+        if (data.user) {
+          setUser({
+            name: data.user.username || data.user.email?.split('@')[0] || 'User',
+            streakDays: 7 // TODO: compute real streak from activity
+          })
+        }
+
+        // Goals
+        const transformedGoals =
+          data.ongoingGoals?.map((goal) => ({
+            id: goal.goal_id,
+            title: goal.title,
+            progress: goal.progress || 0,
+            due: new Date(goal.due_date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric'
+            }),
+            collaborators:
+              goal.collaborators
+                ?.map((c) => c.user?.username || '-')
+                .filter((name) => name !== '-') || ['-']
+          })) || []
+        setOngoingGoals(transformedGoals)
+
+        // Friend suggestions
+        const avatars = ['👩‍💻', '👨‍🎓', '👩‍🔬', '👨‍💼', '👩‍🎨', '👨‍⚕️']
+        const transformedSuggestions =
+          data.friendSuggestions?.map((friend, index) => ({
+            id: friend.user_id,
+            name: friend.username,
+            avatar: avatars[index % avatars.length],
+            description: 'StudyMate user',
+            mutualFriends: Math.floor(Math.random() * 5) + 1 // placeholder
+          })) || []
+        setFriendSuggestions(transformedSuggestions)
+
+        // Friends activity
+        const activityAvatars = ['👩‍💻', '👨‍🎓', '👨‍💼', '👩‍🔬', '👩‍🎨']
+        const transformedActivity =
+          data.friendsActivity?.map((activity, index) => ({
+            id: activity.id,
+            name: activity.user?.username || 'Friend',
+            avatar: activityAvatars[index % activityAvatars.length],
+            activity: activity.message || activity.type,
+            time: formatTimeAgo(new Date(activity.createdAt))
+          })) || []
+        setFriendsActivity(transformedActivity)
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+      console.error('Error response:', error.response?.data)
+      console.error('Error status:', error.response?.status)
+      // If 401, let App handle auth state; just stay on page for now
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatTimeAgo = (date) => {
+    const now = new Date()
+    const diffMs = now - date
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins} min ago`
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
 
   const handleAddFriend = (friendId) => {
-    // In real app, this would make an API call
+    // Optional: wire to backend later
     console.log('Adding friend:', friendId)
   }
 
@@ -68,16 +139,42 @@ const Dashboard = ({ onLogout }) => {
     setNewGoal({ title: '', due: '', collaborators: '' })
   }
 
-  const friendsActivity = useMemo(
-    () => [
-      { id: 1, name: 'Alice', avatar: '👩‍💻', activity: 'Working on React Router Module', time: '5 min ago' },
-      { id: 2, name: 'Bob', avatar: '👨‍🎓', activity: 'Completed DSA Chapter 2', time: '12 min ago' },
-      { id: 3, name: 'Charlie', avatar: '👨‍💼', activity: 'Started new goal: Learn TypeScript', time: '18 min ago' },
-      { id: 4, name: 'Diana', avatar: '👩‍🔬', activity: 'Studying Biology notes', time: '25 min ago' },
-      { id: 5, name: 'Eve', avatar: '👩‍🎨', activity: 'Finished Design project', time: '32 min ago' }
-    ],
-    []
-  )
+  if (loading) {
+    return (
+      <div className="dashboard-root">
+        <div
+          style={{
+            gridColumn: '1 / -1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh'
+          }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <div
+              style={{
+                width: '50px',
+                height: '50px',
+                border: '4px solid #E5E7EB',
+                borderTop: '4px solid #3b82f6',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px'
+              }}
+            />
+            <p style={{ color: '#6B7280' }}>Loading dashboard...</p>
+          </div>
+        </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    )
+  }
 
   return (
     <div className="dashboard-root">

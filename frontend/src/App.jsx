@@ -14,14 +14,14 @@ function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const stored = localStorage.getItem('studymate:isAuthenticated')
-      if (stored === 'true') {
+    const stored = localStorage.getItem('studymate:isAuthenticated')
+    if (stored === 'true') {
         // Verify token is still valid by making a test request
         try {
           await axios.get(`${API_BASE_URL}/api/dashboard`, {
             withCredentials: true
           })
-          setIsAuthenticated(true)
+      setIsAuthenticated(true)
         } catch (error) {
           // Token invalid, clear auth state
           console.log('Auth check failed:', error)

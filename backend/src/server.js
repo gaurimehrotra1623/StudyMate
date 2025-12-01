@@ -8,12 +8,32 @@ dotenv.config();
 const port = process.env.PORT || 3000;
 const app=express();
 
-app.use(cors({
-  origin: ['http://localhost:5173','https://study-mate-dvklf0xoj-gauris-projects-e00c6357.vercel.app', 'https://study-mate-phi-lac.vercel.app', 'https://study-mate-jt8nhm8yk-gauris-projects-e00c6357.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}))
-app.options("*", cors());
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://study-mate-dvklf0xoj-gauris-projects-e00c6357.vercel.app',
+      'https://study-mate-phi-lac.vercel.app',
+      'https://study-mate-jt8nhm8yk-gauris-projects-e00c6357.vercel.app'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Set-Cookie']
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(cookie())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));

@@ -24,20 +24,17 @@ module.exports = {
     const friendIds = friends.flatMap(f =>
       f.userA_id === userId ? f.userB_id : f.userA_id
     );
-    const friendSuggestionsWhere = {
-      user_id: { not: userId }
-    };
-    
-    if (friendIds.length > 0) {
-      friendSuggestionsWhere.user_id = {
-        not: userId,
-        notIn: friendIds
-      };
-    }
-    
+    const excludedIds = Array.from(new Set([userId, ...friendIds]))
+
     const friendSuggestions = await prisma.users.findMany({
-      where: friendSuggestionsWhere,
-      take: 6
+      where: {
+        user_id: {
+          notIn: excludedIds
+        }
+      },
+      orderBy: {
+        username: 'asc'
+      }
     });
     const friendsActivity = friendIds.length > 0 
       ? await prisma.activity.findMany({
