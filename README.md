@@ -16,7 +16,7 @@ Students often struggle to stay consistent and accountable with their studies, e
 
 - **Frontend**: HTML, CSS, JavaScript, React.js (for routing + dynamic UI)
 - **Backend**: Node.js + Express.js (for REST APIs)
-- **Database**: MySQL (Pool)
+- **Database**: MySQL (Prisma)
 - **Authentication**: JWT (JSON Web Token) based authentication and authorization
 - **Hosting**:
   - Frontend: Vercel
