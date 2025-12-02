@@ -156,8 +156,27 @@ module.exports ={
     });
 
     return allUsers;
+  },
+
+  removeFriendship: async (userId, friendId) => {
+    // Find existing friendship (regardless of user order)
+    const friendship = await prisma.friendship.findFirst({
+      where: {
+        OR: [
+          { userA_id: userId, userB_id: friendId },
+          { userA_id: friendId, userB_id: userId }
+        ]
+      }
+    });
+
+    if (!friendship) {
+      throw new Error('Friendship not found');
+    }
+
+    const deleted = await prisma.friendship.delete({
+      where: { id: friendship.id }
+    });
+
+    return deleted;
   }
-  
-
-
 }

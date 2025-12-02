@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import { Link } from "react-router-dom";
+
 import './Dashboard.css'
 
 const API_BASE_URL =  'https://studymate-1fui.onrender.com' 
@@ -67,7 +69,7 @@ const Dashboard = ({ onLogout }) => {
           })) || []
         setOngoingGoals(transformedGoals)
 
-        const avatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮']
+        const avatars = ['🐺', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮', '🐱']
         const transformedSuggestions =
         data.friendSuggestions?.slice(0, 6).map((friend, index) => ({
             id: friend.user_id,
@@ -77,7 +79,7 @@ const Dashboard = ({ onLogout }) => {
           })) || []
         setFriendSuggestions(transformedSuggestions)
               
-        const activityAvatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮']
+        const activityAvatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮', '🐺']
         const transformedActivity =
           data.friendsActivity?.map((activity, index) => ({
             id: activity.id,
@@ -195,7 +197,7 @@ const Dashboard = ({ onLogout }) => {
         </div>
         <nav className="sidebar-nav">
           <a className="nav-link active" href="#home">Home</a>
-          <a className="nav-link" href="#friends">Friends</a>
+          <Link className="nav-link" to="/friends">Friends</Link>
           <a className="nav-link" href="#goals">Goals</a>
           <a className="nav-link" href="#account">My Account</a>
         </nav>
@@ -298,7 +300,7 @@ const Dashboard = ({ onLogout }) => {
         <section id="friend-suggestions" className="friend-suggestions-section">
           <div className="section-head">
             <h2 className="section-title">Friend Suggestions</h2>
-            <a href="#all-suggestions" className="section-link">View all</a>
+            <Link to="/friends" className="section-link">View all</Link>
           </div>
 
           <div className="friend-suggestions-grid">
