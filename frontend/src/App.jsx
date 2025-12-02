@@ -8,8 +8,9 @@ import { Friends } from './components/Friends'
 import Goals from './components/Goals'
 import './App.css'
 
-const API_BASE_URL = //'http://localhost:3000'
-  'https://studymate-1fui.onrender.com'
+const API_BASE_URL = 'https://studymate-1fui.onrender.com'
+
+ //'http://localhost:3000'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
