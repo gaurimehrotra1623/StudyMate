@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import './LoginPage.css'
 
+const API_BASE_URL = 'http://localhost:3000'
+// 'https://studymate-1fui.onrender.com'
+
 const LoginPage = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
@@ -31,9 +34,18 @@ const LoginPage = ({ onLogin }) => {
     let keepLoaderActive = false
 
     try {
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      
       if (isLogin) {
+        localStorage.clear()
+        sessionStorage.clear()
+        
         const response = await axios.post(
-          'https://studymate-1fui.onrender.com/api/auth/login',
+          `${API_BASE_URL}/api/auth/login`,
           {
             email: email,
             password: password
@@ -51,8 +63,11 @@ const LoginPage = ({ onLogin }) => {
           onLogin()
         }, 600)
       } else {
+        localStorage.clear()
+        sessionStorage.clear()
+        
         const response = await axios.post(
-          'https://studymate-1fui.onrender.com/api/auth/signup',
+          `${API_BASE_URL}/api/auth/signup`,
           {
             username: username,
             email: email,
@@ -64,6 +79,26 @@ const LoginPage = ({ onLogin }) => {
         )
 
         setMessage(response.data || 'User created successfully')
+        
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        const loginResponse = await axios.post(
+          `${API_BASE_URL}/api/auth/login`,
+          {
+            email: email,
+            password: password
+          },
+          {
+            withCredentials: true
+          }
+        )
+        
+        localStorage.clear()
+        sessionStorage.clear()
+        
+        localStorage.setItem("accessToken", loginResponse.data.accessToken);
+        localStorage.setItem("refreshToken", loginResponse.data.refreshToken);
+        
         keepLoaderActive = true
         setTimeout(() => {
           onLogin()

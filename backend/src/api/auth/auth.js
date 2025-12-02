@@ -153,8 +153,19 @@ const refresh = async (req, res) => {
 
 const logout = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  res.clearCookie('token');
-  res.clearCookie('refreshToken');
+  
+  // Clear cookies with the same settings they were set with
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/'
+  };
+  
+  res.clearCookie('token', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
+  
+  // Delete refresh token from database
   if (refreshToken) {
     try {
       await prisma.refresh_token.delete({
@@ -166,6 +177,7 @@ const logout = async (req, res) => {
       }
     }
   }
+  
   return res.json({ message: 'Logout successful' });
 };
 

@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 
 import './Dashboard.css'
 
-const API_BASE_URL =  'https://studymate-1fui.onrender.com' 
+const API_BASE_URL = 'http://localhost:3000'
+// 'https://studymate-1fui.onrender.com' 
 
 const Dashboard = ({ onLogout }) => {
   const [loading, setLoading] = useState(true)
@@ -23,9 +24,12 @@ const Dashboard = ({ onLogout }) => {
           withCredentials: true
         }
       )
-      onLogout()
     } catch (error) {
       console.error('Logout error:', error)
+    } finally {
+      // Always clear local data and call onLogout
+      localStorage.clear()
+      sessionStorage.clear()
       onLogout()
     }
   }

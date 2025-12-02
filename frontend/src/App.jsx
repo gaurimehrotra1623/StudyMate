@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import LoginPage from './components/LoginPage'
 import Dashboard from './components/Dashboard'
@@ -9,17 +9,27 @@ import Goals from './components/Goals'
 import './App.css'
 
 const API_BASE_URL = //'http://localhost:3000'
-'https://studymate-1fui.onrender.com'
+  'https://studymate-1fui.onrender.com'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const location = useLocation()
 
   useEffect(() => {
     const checkAuth = async () => {
-      const path = window.location.pathname
+      const path = location.pathname
+
       if (path === '/') {
         setIsAuthenticated(false)
+        setIsCheckingAuth(false)
+        return
+      }
+
+      const protectedRoutes = ['/dashboard', '/friends', '/goals']
+      const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route))
+
+      if (!isProtectedRoute) {
         setIsCheckingAuth(false)
         return
       }
@@ -30,13 +40,16 @@ function App() {
         })
         setIsAuthenticated(true)
       } catch (error) {
+        if (error.response?.status !== 401) {
+          console.error('Auth check error:', error)
+        }
         setIsAuthenticated(false)
       }
       setIsCheckingAuth(false)
     }
 
     checkAuth()
-  }, [])
+  }, [location.pathname])
 
   const handleLogin = () => {
     localStorage.removeItem('token')
@@ -45,11 +58,24 @@ function App() {
     setIsAuthenticated(true)
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('studymate:isAuthenticated')
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/auth/logout`, {}, {
+        withCredentials: true
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+
+    localStorage.clear()
+    sessionStorage.clear()
+
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
     setIsAuthenticated(false)
   }
 
