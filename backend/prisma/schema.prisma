@@ -18,7 +18,6 @@ model Users {
   activities     Activity[]
   friendshipsA   Friendship[]   @relation("UserA")
   friendshipsB   Friendship[]   @relation("UserB")
-  goalCollaborations UserGoalCollaborator[]
 }
 
 model Goal {
@@ -28,16 +27,6 @@ model Goal {
   progress    Int       @default(0)
   owner_id    Int
   owner       Users     @relation(fields: [owner_id], references: [user_id])
-  collaborators UserGoalCollaborator[]
-}
-
-
-model UserGoalCollaborator {
-  id       Int   @id @default(autoincrement())
-  user_id  Int
-  goal_id  Int
-  user     Users @relation(fields: [user_id], references: [user_id])
-  goal     Goal  @relation(fields: [goal_id], references: [goal_id])
 }
 
 model Friendship {
