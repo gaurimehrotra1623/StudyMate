@@ -542,62 +542,6 @@
   line-height: 1.5;
 }
 
-.activity-reactions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  padding-top: 10px;
-  border-top: 1px solid #F3F4F6;
-}
-
-.reaction-btn {
-  background-color: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.reaction-btn:hover {
-  background-color: #F3F4F6;
-  border-color: #D1D5DB;
-  transform: scale(1.1);
-}
-
-.reaction-btn:active {
-  transform: scale(0.95);
-}
-
-.message-btn {
-  background-color: #3b82f6;
-  border: 1px solid #3b82f6;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: auto;
-}
-
-.message-btn:hover {
-  background-color: #2563EB;
-  border-color: #2563EB;
-  transform: scale(1.05);
-}
-
-.message-btn:active {
-  transform: scale(0.95);
-}
 
 @media (max-width: 1024px) {
   .dashboard-root { grid-template-columns: 80px 1fr; }

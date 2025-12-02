@@ -140,13 +140,6 @@ const Dashboard = ({ onLogout }) => {
     }
   }
 
-  const handleReact = (activityId, reaction) => {
-    console.log('Reacting to activity:', activityId, 'with', reaction)
-  }
-
-  const handleMessage = (activityId, friendName) => {
-    console.log('Messaging about activity:', activityId, 'from', friendName)
-  }
 
   const [newGoal, setNewGoal] = useState({ title: '', due: '', collaborators: '' })
 
@@ -341,43 +334,6 @@ const Dashboard = ({ onLogout }) => {
                     <span className="activity-time">{activity.time}</span>
                   </div>
                   <p className="activity-text">{activity.activity}</p>
-                  <div className="activity-reactions">
-                    <button 
-                      className="reaction-btn"
-                      onClick={() => handleReact(activity.id, '👍')}
-                      title="Like"
-                    >
-                      👍
-                    </button>
-                    <button 
-                      className="reaction-btn"
-                      onClick={() => handleReact(activity.id, '❤️')}
-                      title="Love"
-                    >
-                      ❤️
-                    </button>
-                    <button 
-                      className="reaction-btn"
-                      onClick={() => handleReact(activity.id, '🎉')}
-                      title="Celebrate"
-                    >
-                      🎉
-                    </button>
-                    <button 
-                      className="reaction-btn"
-                      onClick={() => handleReact(activity.id, '🔥')}
-                      title="Fire"
-                    >
-                      🔥
-                    </button>
-                    <button 
-                      className="message-btn"
-                      onClick={() => handleMessage(activity.id, activity.name)}
-                      title="Message"
-                    >
-                      💬 Message
-                    </button>
-                  </div>
                 </div>
               </div>
             ))}
