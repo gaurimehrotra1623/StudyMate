@@ -4,16 +4,8 @@ module.exports = {
   getDashboardData: async (userId) => {
     const ongoingGoals = await prisma.goal.findMany({
       where: {
-        OR: [
-          { owner_id: userId },
-          { collaborators: { some: { user_id: userId } } }
-        ]
+        owner_id: userId
       },
-      include: {
-        collaborators: {
-          include: { user: true }
-        }
-      }
     });
     const friends = await prisma.friendship.findMany({
       where: {
@@ -66,7 +58,7 @@ module.exports = {
     };
   },
   createGoal: async (userId, goalData) => {
-    const { title, due_date, collaboratorUsernames } = goalData
+    const { title, due_date } = goalData
   
     const goal = await prisma.goal.create({
       data: {
@@ -76,24 +68,6 @@ module.exports = {
         owner_id: userId
       }
     })
-    if (collaboratorUsernames && collaboratorUsernames.length > 0) {
-      const collaboratorNames = collaboratorUsernames.split(',').map(name => name.trim()).filter(name => name)
-      
-      for (const username of collaboratorNames) {
-        const collaborator = await prisma.users.findUnique({
-          where: { username }
-        })
-        
-        if (collaborator) {
-          await prisma.userGoalCollaborator.create({
-            data: {
-              user_id: collaborator.user_id,
-              goal_id: goal.goal_id
-            }
-          })
-        }
-      }
-    }
 
     await prisma.activity.create({
       data: {
