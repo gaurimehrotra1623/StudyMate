@@ -4,15 +4,20 @@ module.exports = {
     try {
       const userId = parseInt(req.user.id || req.user.user_id, 10);
       if (!userId || isNaN(userId)) {
+        console.error('Invalid userId in getGoals:', req.user);
         return res.status(401).json({
           success: false,
           message: "Invalid user ID"
         });
       }
       const goals = await goalsService.getGoalsForUser(userId);
+      const filteredGoals = goals.filter(goal => {
+        const goalOwnerId = parseInt(goal.owner_id, 10);
+        return goalOwnerId === userId;
+      });
       return res.status(200).json({
         success: true,
-        data: goals
+        data: filteredGoals
       });
     } catch (err) {
       console.error('Get Goals error:', err);

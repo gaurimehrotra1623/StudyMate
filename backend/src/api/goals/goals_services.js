@@ -4,10 +4,33 @@ const prisma = new PrismaClient();
 module.exports = {
   getGoalsForUser: async (userId) => {
     const userIdNum = parseInt(userId, 10);
-    return await prisma.goal.findMany({
-      where: { owner_id: userIdNum },
-      orderBy: { due_date: 'asc' }
-    });
+    if (isNaN(userIdNum) || userIdNum <= 0) {
+      console.error('Invalid userId in getGoalsForUser:', userId);
+      return [];
+    }
+    
+    try {
+      const goals = await prisma.goal.findMany({
+        where: { 
+          owner_id: userIdNum
+        },
+        orderBy: { due_date: 'asc' }
+      });
+      
+      const filteredGoals = goals.filter(goal => {
+        const goalOwnerId = typeof goal.owner_id === 'number' ? goal.owner_id : parseInt(goal.owner_id, 10);
+        const matches = goalOwnerId === userIdNum;
+        if (!matches) {
+          console.error(`Goal ${goal.goal_id} owner_id ${goalOwnerId} does not match userId ${userIdNum}`);
+        }
+        return matches;
+      });
+      
+      return filteredGoals;
+    } catch (error) {
+      console.error('Error fetching goals for user:', error);
+      return [];
+    }
   },
   getGoalById: async (goalId) => {
     return await prisma.goal.findUnique({
