@@ -2,16 +2,17 @@ const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
 module.exports ={
   getFriendshipData : async (userId) => {
+    const userIdNum = parseInt(userId, 10);
     const friends = await prisma.friendship.findMany({
       where: {
-        OR: [{ userA_id: userId }, { userB_id: userId }]
+        OR: [{ userA_id: userIdNum }, { userB_id: userIdNum }]
       }
     });
 
     const friendIds = friends.flatMap(f =>
-      f.userA_id === userId ? f.userB_id : f.userA_id
+      f.userA_id === userIdNum ? f.userB_id : f.userA_id
     );
-    const excludedIds = Array.from(new Set([userId, ...friendIds]))
+    const excludedIds = Array.from(new Set([userIdNum, ...friendIds]))
 
     const friendSuggestions = await prisma.users.findMany({
       where: {
@@ -45,8 +46,11 @@ module.exports ={
   },
   
   addFriendship: async (userId, friendId) => {
+    const userIdNum = parseInt(userId, 10);
+    const friendIdNum = parseInt(friendId, 10);
+    
     // Prevent self-friending
-    if (userId === friendId) {
+    if (userIdNum === friendIdNum) {
       throw new Error('Cannot add yourself as a friend');
     }
 
@@ -54,8 +58,8 @@ module.exports ={
     const existingFriendship = await prisma.friendship.findFirst({
       where: {
         OR: [
-          { userA_id: userId, userB_id: friendId },
-          { userA_id: friendId, userB_id: userId }
+          { userA_id: userIdNum, userB_id: friendIdNum },
+          { userA_id: friendIdNum, userB_id: userIdNum }
         ]
       }
     });
@@ -66,7 +70,7 @@ module.exports ={
 
     // Verify friend exists
     const friend = await prisma.users.findUnique({
-      where: { user_id: friendId }
+      where: { user_id: friendIdNum }
     });
 
     if (!friend) {
@@ -74,8 +78,8 @@ module.exports ={
     }
 
     // Create friendship (always store with smaller ID as userA_id for consistency)
-    const userA_id = userId < friendId ? userId : friendId;
-    const userB_id = userId < friendId ? friendId : userId;
+    const userA_id = userIdNum < friendIdNum ? userIdNum : friendIdNum;
+    const userB_id = userIdNum < friendIdNum ? friendIdNum : userIdNum;
 
     const friendship = await prisma.friendship.create({
       data: {
@@ -88,9 +92,10 @@ module.exports ={
   },
   
   getExistingFriends: async (userId) => {
+    const userIdNum = parseInt(userId, 10);
     const friendships = await prisma.friendship.findMany({
       where: {
-        OR: [{ userA_id: userId }, { userB_id: userId }]
+        OR: [{ userA_id: userIdNum }, { userB_id: userIdNum }]
       },
       include: {
         userA: {
@@ -112,7 +117,7 @@ module.exports ={
 
     // Transform to get friend details (the other user in each friendship)
     const friends = friendships.map(friendship => {
-      const friend = friendship.userA_id === userId ? friendship.userB : friendship.userA;
+      const friend = friendship.userA_id === userIdNum ? friendship.userB : friendship.userA;
       return {
         id: friend.user_id,
         username: friend.username,
@@ -125,19 +130,20 @@ module.exports ={
   },
   
   getAllUsersForSuggestions: async (userId) => {
+    const userIdNum = parseInt(userId, 10);
     // Get existing friends
     const friendships = await prisma.friendship.findMany({
       where: {
-        OR: [{ userA_id: userId }, { userB_id: userId }]
+        OR: [{ userA_id: userIdNum }, { userB_id: userIdNum }]
       }
     });
 
     const friendIds = friendships.flatMap(f =>
-      f.userA_id === userId ? f.userB_id : f.userA_id
+      f.userA_id === userIdNum ? f.userB_id : f.userA_id
     );
     
     // Exclude current user and existing friends
-    const excludedIds = Array.from(new Set([userId, ...friendIds]));
+    const excludedIds = Array.from(new Set([userIdNum, ...friendIds]));
 
     const allUsers = await prisma.users.findMany({
       where: {
@@ -159,12 +165,15 @@ module.exports ={
   },
 
   removeFriendship: async (userId, friendId) => {
+    const userIdNum = parseInt(userId, 10);
+    const friendIdNum = parseInt(friendId, 10);
+    
     // Find existing friendship (regardless of user order)
     const friendship = await prisma.friendship.findFirst({
       where: {
         OR: [
-          { userA_id: userId, userB_id: friendId },
-          { userA_id: friendId, userB_id: userId }
+          { userA_id: userIdNum, userB_id: friendIdNum },
+          { userA_id: friendIdNum, userB_id: userIdNum }
         ]
       }
     });

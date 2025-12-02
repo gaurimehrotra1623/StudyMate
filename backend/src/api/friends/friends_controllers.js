@@ -2,7 +2,7 @@ const friendshipService = require('./friends_services.js');
 module.exports = {
   getFriendship: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const data = await friendshipService.getFriendshipData(userId);
       return res.status(200).json({
         success: true,
@@ -16,7 +16,7 @@ module.exports = {
   
   addFriend: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const { friendId } = req.body;
 
       if (!friendId) {
@@ -52,7 +52,7 @@ module.exports = {
   
   getExistingFriends: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const friends = await friendshipService.getExistingFriends(userId);
       return res.status(200).json({
         success: true,
@@ -66,7 +66,7 @@ module.exports = {
   
   getAllUsersForSuggestions: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const users = await friendshipService.getAllUsersForSuggestions(userId);
       return res.status(200).json({
         success: true,
@@ -80,7 +80,7 @@ module.exports = {
 
   removeFriend: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const { friendId } = req.body;
 
       if (!friendId) {
