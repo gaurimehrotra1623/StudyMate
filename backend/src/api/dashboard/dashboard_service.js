@@ -2,21 +2,22 @@ const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient()
 module.exports = {
   getDashboardData: async (userId) => {
+    const userIdNum = parseInt(userId, 10);
     const ongoingGoals = await prisma.goal.findMany({
       where: {
-        owner_id: userId
+        owner_id: userIdNum
       },
     });
     const friends = await prisma.friendship.findMany({
       where: {
-        OR: [{ userA_id: userId }, { userB_id: userId }]
+        OR: [{ userA_id: userIdNum }, { userB_id: userIdNum }]
       }
     });
 
     const friendIds = friends.flatMap(f =>
-      f.userA_id === userId ? f.userB_id : f.userA_id
+      f.userA_id === userIdNum ? f.userB_id : f.userA_id
     );
-    const excludedIds = Array.from(new Set([userId, ...friendIds]))
+    const excludedIds = Array.from(new Set([userIdNum, ...friendIds]))
 
     const friendSuggestions = await prisma.users.findMany({
       where: {
@@ -42,7 +43,7 @@ module.exports = {
       : [];
 
     const user = await prisma.users.findUnique({
-      where: { user_id: userId },
+      where: { user_id: userIdNum },
       select: {
         user_id: true,
         username: true,
@@ -58,6 +59,7 @@ module.exports = {
     };
   },
   createGoal: async (userId, goalData) => {
+    const userIdNum = parseInt(userId, 10);
     const { title, due_date } = goalData
   
     const goal = await prisma.goal.create({
@@ -65,13 +67,13 @@ module.exports = {
         title,
         due_date: new Date(due_date),
         progress: 0,
-        owner_id: userId
+        owner_id: userIdNum
       }
     })
 
     await prisma.activity.create({
       data: {
-        user_id: userId,
+        user_id: userIdNum,
         type: 'created_goal',
         message: `Created goal: ${title}`
       }
@@ -80,14 +82,17 @@ module.exports = {
     return goal
   },
   addFriend: async (userId, friendId) => {
+    const userIdNum = parseInt(userId, 10);
+    const friendIdNum = parseInt(friendId, 10);
+    
     // Prevent self-friending
-    if (userId === friendId) {
+    if (userIdNum === friendIdNum) {
       throw new Error('Cannot add yourself as a friend')
     }
 
     // Verify friend exists
     const friend = await prisma.users.findUnique({
-      where: { user_id: friendId }
+      where: { user_id: friendIdNum }
     })
 
     if (!friend) {
@@ -98,8 +103,8 @@ module.exports = {
     const existingFriendship = await prisma.friendship.findFirst({
       where: {
         OR: [
-          { userA_id: userId, userB_id: friendId },
-          { userA_id: friendId, userB_id: userId }
+          { userA_id: userIdNum, userB_id: friendIdNum },
+          { userA_id: friendIdNum, userB_id: userIdNum }
         ]
       }
     })
@@ -109,8 +114,8 @@ module.exports = {
     }
 
     // Create friendship (always store with smaller ID as userA_id for consistency)
-    const userA_id = userId < friendId ? userId : friendId
-    const userB_id = userId < friendId ? friendId : userId
+    const userA_id = userIdNum < friendIdNum ? userIdNum : friendIdNum
+    const userB_id = userIdNum < friendIdNum ? friendIdNum : userIdNum
 
     const friendship = await prisma.friendship.create({
       data: {
@@ -122,7 +127,7 @@ module.exports = {
     // Create activity
     await prisma.activity.create({
       data: {
-        user_id: userId,
+        user_id: userIdNum,
         type: 'added_friend',
         message: `Added ${friend.username} as a friend`
       }

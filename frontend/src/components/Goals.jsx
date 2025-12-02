@@ -69,21 +69,22 @@ const Goals = ({ onLogout }) => {
 
   const handleUpdateGoal = async (goalId) => {
     try {
-      const payload = {
-        title: editingData.title.trim(),
-        due_date: editingData.due ? `${editingData.due}T00:00:00.000Z` : null
+      const payload = {}
+      if (editingData.title) {
+        payload.title = editingData.title
       }
-  
-      const res = await axios.put(
-        `${API_BASE_URL}/api/goals/${goalId}`,
-        payload,
-        { withCredentials: true }
-      )
-  
-      if (res.data.success) {
+      if (editingData.due) {
+        payload.due_date = `${editingData.due}T00:00:00.000Z`
+      }
+
+      const res = await axios.put(`${API_BASE_URL}/api/goals/${goalId}`, payload, {
+        withCredentials: true
+      })
+
+      if (res.data.success && res.data.data) {
         const u = res.data.data
-        setGoals(prev =>
-          prev.map(g =>
+        setGoals((prev) =>
+          prev.map((g) =>
             g.id === goalId
               ? {
                   id: u.goal_id,
@@ -99,10 +100,8 @@ const Goals = ({ onLogout }) => {
         )
         cancelEditingGoal()
       }
-    } catch (e) {
-      console.error("Error updating goal:", e)
-    }
-  }  
+    } catch (e) {}
+  }
 
   return (
     <div className="dashboard-root">

@@ -310,7 +310,7 @@ const Dashboard = ({ onLogout }) => {
         <nav className="sidebar-nav">
           <a className="nav-link active" href="#home">Home</a>
           <Link className="nav-link" to="/friends">Friends</Link>
-          <a className="nav-link" href="/goals">Goals</a>
+          <Link className="nav-link" to="/goals">Goals</Link>
           <a className="nav-link" href="#account">My Account</a>
         </nav>
         <button onClick={handleLogout} className="sidebar-logout">Logout</button>

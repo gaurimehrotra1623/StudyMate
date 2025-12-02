@@ -17,6 +17,13 @@ function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      const path = window.location.pathname
+      if (path === '/') {
+        setIsAuthenticated(false)
+        setIsCheckingAuth(false)
+        return
+      }
+
       try {
         await axios.get(`${API_BASE_URL}/api/dashboard`, {
           withCredentials: true
@@ -81,10 +88,10 @@ function App() {
       <Route
         path="/"
         element={
-          isAuthenticated ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
+          !isAuthenticated ? (
             <LoginPage onLogin={handleLogin} />
+          ) : (
+            <Navigate to="/dashboard" replace />
           )
         }
       />

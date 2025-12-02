@@ -2,7 +2,7 @@ const goalsService = require('./goals_services');
 module.exports = {
   getGoals: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const goals = await goalsService.getGoalsForUser(userId);
       return res.status(200).json({
         success: true,
@@ -41,7 +41,7 @@ module.exports = {
   },
   createGoal : async(req,res)=>{
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const { title, due_date, collaborators } = req.body;
 
       if (!title || !due_date) {

@@ -2,8 +2,8 @@ const dashboardService = require("./dashboard_service");
 module.exports = {
   getDashboard: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
-      if (!userId) {
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
+      if (!userId || isNaN(userId)) {
         return res.status(401).json({ 
           success: false, 
           message: "User not authenticated" 
@@ -24,7 +24,7 @@ module.exports = {
   },
   createGoal: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const { title, due_date, collaborators } = req.body;
       
       if (!title || !due_date) {
@@ -54,7 +54,7 @@ module.exports = {
   },
   addFriend: async (req, res) => {
     try {
-      const userId = req.user.id || req.user.user_id;
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const { friendId } = req.body;
       
       if (!friendId) {
