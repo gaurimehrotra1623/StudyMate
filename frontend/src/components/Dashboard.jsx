@@ -54,19 +54,16 @@ const Dashboard = ({ onLogout }) => {
         }
 
         const transformedGoals =
-          data.ongoingGoals?.map((goal) => ({
-            id: goal.goal_id,
-            title: goal.title,
-            progress: goal.progress || 0,
-            due: new Date(goal.due_date).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric'
-            }),
-            collaborators:
-              goal.collaborators
-                ?.map((c) => c.user?.username || '-')
-                .filter((name) => name !== '-') || ['-']
-          })) || []
+        data.ongoingGoals?.map((goal) => ({
+          id: goal.goal_id,
+          title: goal.title,
+          progress: goal.progress || 0,
+          due: new Date(goal.due_date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+          }),
+          collaborators: ['-']
+        })) || []      
         setOngoingGoals(transformedGoals)
 
         const avatars = ['🐺', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮', '🐱']
