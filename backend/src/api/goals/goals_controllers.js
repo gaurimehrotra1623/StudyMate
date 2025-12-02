@@ -3,6 +3,12 @@ module.exports = {
   getGoals: async (req, res) => {
     try {
       const userId = parseInt(req.user.id || req.user.user_id, 10);
+      if (!userId || isNaN(userId)) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid user ID"
+        });
+      }
       const goals = await goalsService.getGoalsForUser(userId);
       return res.status(200).json({
         success: true,
@@ -19,12 +25,19 @@ module.exports = {
   getGoalById :
     async (req, res)=>{
       try {
+        const userId = parseInt(req.user.id || req.user.user_id, 10);
         const goalId = parseInt(req.params.id, 10);
         const goal = await goalsService.getGoalById(goalId);
         if (!goal) {
           return res.status(404).json({
             success: false,
             message: "Goal not found"
+          });
+        }
+        if (goal.owner_id !== userId) {
+          return res.status(403).json({
+            success: false,
+            message: "Access denied. This goal does not belong to you."
           });
         }
         return res.status(200).json({
@@ -72,9 +85,24 @@ module.exports = {
   },
   updateGoal : async(req,res)=>{
     try {
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const goalId = parseInt(req.params.id, 10);
-      const updateData = req.body;
+      
+      const existingGoal = await goalsService.getGoalById(goalId);
+      if (!existingGoal) {
+        return res.status(404).json({
+          success: false,
+          message: "Goal not found"
+        });
+      }
+      if (existingGoal.owner_id !== userId) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You can only update your own goals."
+        });
+      }
 
+      const updateData = req.body;
       const updatedGoal = await goalsService.updateGoal(goalId, updateData);
 
       return res.status(200).json({
@@ -91,7 +119,22 @@ module.exports = {
   },
   deleteGoal : async(req,res)=>{
     try {
+      const userId = parseInt(req.user.id || req.user.user_id, 10);
       const goalId = parseInt(req.params.id, 10);
+
+      const existingGoal = await goalsService.getGoalById(goalId);
+      if (!existingGoal) {
+        return res.status(404).json({
+          success: false,
+          message: "Goal not found"
+        });
+      }
+      if (existingGoal.owner_id !== userId) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You can only delete your own goals."
+        });
+      }
 
       await goalsService.deleteGoal(goalId);
 

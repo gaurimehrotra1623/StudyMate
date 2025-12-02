@@ -3,8 +3,9 @@ const prisma = new PrismaClient();
 
 module.exports = {
   getGoalsForUser: async (userId) => {
+    const userIdNum = parseInt(userId, 10);
     return await prisma.goal.findMany({
-      where: { owner_id: Number(userId) },
+      where: { owner_id: userIdNum },
       orderBy: { due_date: 'asc' }
     });
   },
@@ -19,12 +20,13 @@ module.exports = {
 
   createGoal: async (goalData) => {
     const { title, due_date, ownerId } = goalData;
+    const ownerIdNum = parseInt(ownerId, 10);
 
     return await prisma.goal.create({
       data: {
         title,
         due_date: new Date(due_date),
-        owner: { connect: { user_id: ownerId } }
+        owner: { connect: { user_id: ownerIdNum } }
       }
     });
   },
