@@ -7,8 +7,8 @@ import NotFound from './components/NotFound'
 import { Friends } from './components/Friends'
 import './App.css'
 
-const API_BASE_URL = 'http://localhost:3000'
-// or: 'https://studymate-1fui.onrender.com'
+const API_BASE_URL = //'http://localhost:3000'
+'https://studymate-1fui.onrender.com'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)

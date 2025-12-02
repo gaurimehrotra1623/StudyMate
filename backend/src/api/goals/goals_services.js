@@ -1,21 +1,19 @@
-const {PrismaClient} = require('@prisma/client')
-const prisma = new PrismaClient()
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
 module.exports = {
   getGoalById: async (goalId) => {
     return await prisma.goal.findUnique({
       where: { goal_id: Number(goalId) },
       include: {
-        collaborators: {
-          include: { user: true }
-        },
-        tasks: true
+        owner: true   
       }
     });
   },
 
   createGoal: async (goalData) => {
-    const { title, due_date, ownerId, collaboratorUsernames } = goalData;
-  
+    const { title, due_date, ownerId } = goalData;
+
     return await prisma.goal.create({
       data: {
         title,
