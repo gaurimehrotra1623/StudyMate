@@ -15,7 +15,9 @@ export const Friends = ({ onLogout }) => {
 
   const [friendsPage, setFriendsPage] = useState(1)
   const [suggestionsPage, setSuggestionsPage] = useState(1)
-  const pageSize = 6
+  const pageSize = 5
+
+  const avatars = ['🐺', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮', '🐱', '🍇', '🐍']
 
   useEffect(() => {
     const fetchFriendsData = async () => {
@@ -236,25 +238,26 @@ export const Friends = ({ onLogout }) => {
                 ) : (
                   <>
                     <div className="friends-grid">
-                      {visibleFriends.map((friend) => (
-                        <div key={friend.id} className="friends-user-card">
-                          <div className="friends-avatar">
-                            {(friend.username || friend.email || '?')
-                              .charAt(0)
-                              .toUpperCase()}
+                      {visibleFriends.map((friend, index) => {
+                        const avatar = avatars[index % avatars.length]
+                        return (
+                          <div key={friend.id} className="friends-user-card">
+                            <div className="friends-avatar">
+                              {avatar}
+                            </div>
+                            <div className="friends-user-info">
+                              <h3 className="friends-user-name">{friend.username}</h3>
+                              <p className="friends-user-email">{friend.email}</p>
+                            </div>
+                            <button
+                              className="friends-remove-btn"
+                              onClick={() => handleRemoveFriend(friend.id)}
+                            >
+                              Remove Friend
+                            </button>
                           </div>
-                          <div className="friends-user-info">
-                            <h3 className="friends-user-name">{friend.username}</h3>
-                            <p className="friends-user-email">{friend.email}</p>
-                          </div>
-                          <button
-                            className="friends-remove-btn"
-                            onClick={() => handleRemoveFriend(friend.id)}
-                          >
-                            Remove Friend
-                          </button>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
 
                     {totalFriendsPages > 1 && (
@@ -295,25 +298,26 @@ export const Friends = ({ onLogout }) => {
                 ) : (
                   <>
                     <div className="friends-grid">
-                      {visibleSuggestions.map((user) => (
-                        <div key={user.id} className="friends-user-card">
-                          <div className="friends-avatar">
-                            {(user.username || user.email || '?')
-                              .charAt(0)
-                              .toUpperCase()}
+                      {visibleSuggestions.map((user, index) => {
+                        const avatar = avatars[index % avatars.length]
+                        return (
+                          <div key={user.id} className="friends-user-card">
+                            <div className="friends-avatar">
+                              {avatar}
+                            </div>
+                            <div className="friends-user-info">
+                              <h3 className="friends-user-name">{user.username}</h3>
+                              <p className="friends-user-email">{user.email}</p>
+                            </div>
+                            <button
+                              className="friends-add-btn"
+                              onClick={() => handleAddFriend(user.id)}
+                            >
+                              Add Friend
+                            </button>
                           </div>
-                          <div className="friends-user-info">
-                            <h3 className="friends-user-name">{user.username}</h3>
-                            <p className="friends-user-email">{user.email}</p>
-                          </div>
-                          <button
-                            className="friends-add-btn"
-                            onClick={() => handleAddFriend(user.id)}
-                          >
-                            Add Friend
-                          </button>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
 
                     {totalSuggestionsPages > 1 && (
