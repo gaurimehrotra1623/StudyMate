@@ -62,8 +62,9 @@ const Dashboard = ({ onLogout }) => {
             month: 'short',
             day: 'numeric'
           }),
+          dueRaw: goal.due_date,
           collaborators: ['-']
-        })) || []      
+        })).slice(0, 6) || []      
         setOngoingGoals(transformedGoals)
 
         const avatars = ['🐺', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮', '🐱']
@@ -140,12 +141,126 @@ const Dashboard = ({ onLogout }) => {
   }
 
 
-  const [newGoal, setNewGoal] = useState({ title: '', due: '', collaborators: '' })
+  const [newGoal, setNewGoal] = useState({ title: '', due: '' })
+  const [editingGoalId, setEditingGoalId] = useState(null)
+  const [editingData, setEditingData] = useState({ title: '', due: '' })
 
-  const handleAddGoal = (e) => {
+  const handleDeleteGoal = async (goalId) => {
+    try {
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/goals/${goalId}`,
+        {
+          withCredentials: true
+        }
+      )
+
+      if (response.data.success) {
+        setOngoingGoals(prev => prev.filter(goal => goal.id !== goalId))
+        showToast('Goal deleted successfully!', 'success')
+      }
+    } catch (error) {
+      console.error('Error deleting goal:', error)
+      const errorMessage = error.response?.data?.message || 'Failed to delete goal'
+      showToast(errorMessage, 'error')
+    }
+  }
+
+  const handleAddGoal = async (e) => {
     e.preventDefault()
-    console.log('Adding new goal:', newGoal)
-    setNewGoal({ title: '', due: '', collaborators: '' })
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/dashboard/goals`,
+        {
+          title: newGoal.title,
+          due_date: `${newGoal.due}T00:00:00.000Z`
+        },
+        {
+          withCredentials: true
+        }
+      )
+
+      if (response.data.success && response.data.data) {
+        const created = response.data.data
+        const newGoalCard = {
+          id: created.goal_id,
+          title: created.title,
+          progress: created.progress || 0,
+          due: new Date(created.due_date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+          }),
+          dueRaw: created.due_date,
+          collaborators: ['-']
+        }
+        setOngoingGoals(prev => [newGoalCard, ...prev].slice(0, 6))
+        setNewGoal({ title: '', due: '' })
+        showToast('Goal added successfully!', 'success')
+      }
+    } catch (error) {
+      console.error('Error adding goal:', error)
+      const errorMessage = error.response?.data?.message || 'Failed to add goal'
+      showToast(errorMessage, 'error')
+    }
+  }
+
+  const startEditingGoal = (goal) => {
+    setEditingGoalId(goal.id)
+    setEditingData({
+      title: goal.title,
+      due: goal.dueRaw ? new Date(goal.dueRaw).toISOString().slice(0, 10) : ''
+    })
+  }
+
+  const cancelEditingGoal = () => {
+    setEditingGoalId(null)
+    setEditingData({ title: '', due: '' })
+  }
+
+  const handleUpdateGoal = async (goalId) => {
+    try {
+      const payload = {}
+      if (editingData.title) {
+        payload.title = editingData.title
+      }
+      if (editingData.due) {
+        payload.due_date = `${editingData.due}T00:00:00.000Z`
+      }
+
+      const response = await axios.put(
+        `${API_BASE_URL}/api/goals/${goalId}`,
+        payload,
+        {
+          withCredentials: true
+        }
+      )
+
+      if (response.data.success && response.data.data) {
+        const updated = response.data.data
+        setOngoingGoals(prev =>
+          prev.map(goal =>
+            goal.id === goalId
+              ? {
+                  id: updated.goal_id,
+                  title: updated.title,
+                  progress: updated.progress || 0,
+                  due: new Date(updated.due_date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                  }),
+                  dueRaw: updated.due_date,
+                  collaborators: ['-']
+                }
+              : goal
+          )
+        )
+        showToast('Goal updated successfully!', 'success')
+        cancelEditingGoal()
+      }
+    } catch (error) {
+      console.error('Error updating goal:', error)
+      const errorMessage = error.response?.data?.message || 'Failed to update goal'
+      showToast(errorMessage, 'error')
+    }
   }
 
   if (loading) {
@@ -195,7 +310,7 @@ const Dashboard = ({ onLogout }) => {
         <nav className="sidebar-nav">
           <a className="nav-link active" href="#home">Home</a>
           <Link className="nav-link" to="/friends">Friends</Link>
-          <a className="nav-link" href="#goals">Goals</a>
+          <a className="nav-link" href="/goals">Goals</a>
           <a className="nav-link" href="#account">My Account</a>
         </nav>
         <button onClick={handleLogout} className="sidebar-logout">Logout</button>
@@ -242,14 +357,6 @@ const Dashboard = ({ onLogout }) => {
             </div>
             <div className="form-row">
               <div className="input-wrapper">
-                <span className="input-icon">👥</span>
-                <input
-                  type="text"
-                  className="goal-input"
-                  placeholder="Who's joining you? (comma separated)"
-                  value={newGoal.collaborators}
-                  onChange={(e) => setNewGoal({ ...newGoal, collaborators: e.target.value })}
-                />
               </div>
               <button type="submit" className="add-goal-btn">
                 <span>✨</span>
@@ -262,35 +369,92 @@ const Dashboard = ({ onLogout }) => {
         <section id="goals" className="goals-section">
           <div className="section-head">
             <h2 className="section-title">Ongoing Goals</h2>
-            <a href="#all-goals" className="section-link">View all</a>
+            <Link to="/goals" className="section-link">View all</Link>
           </div>
 
           <div className="goals-grid">
-            {ongoingGoals.map(goal => (
-              <div key={goal.id} className="goal-card">
-                <h3 className="goal-title">{goal.title}</h3>
-                <div className="goal-meta">
-                  <span className="goal-due">Due {goal.due}</span>
+            {ongoingGoals.map(goal => {
+              const isEditing = editingGoalId === goal.id
+              return (
+                <div
+                  key={goal.id}
+                  className={`goal-card ${isEditing ? 'goal-card-editing' : ''}`}
+                >
+                  {isEditing ? (
+                    <>
+                      <div className="goal-edit-fields">
+                        <div>
+                          <div className="goal-edit-label">Goal title</div>
+                          <input
+                            type="text"
+                            className="goal-edit-input"
+                            value={editingData.title}
+                            onChange={(e) =>
+                              setEditingData({ ...editingData, title: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <div className="goal-edit-label">Due date</div>
+                          <input
+                            type="date"
+                            className="goal-edit-input"
+                            value={editingData.due}
+                            onChange={(e) =>
+                              setEditingData({ ...editingData, due: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+                      <div className="goal-actions">
+                        <button
+                          className="goal-btn primary"
+                          onClick={() => handleUpdateGoal(goal.id)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="goal-btn secondary"
+                          onClick={cancelEditingGoal}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="goal-header">
+                        <div className="goal-header-main">
+                          <h3 className="goal-title">{goal.title}</h3>
+                          <div className="goal-meta">
+                            <span className="goal-meta-label">Due</span>
+                            <span className="goal-meta-date">{goal.due}</span>
+                          </div>
+                        </div>
+                        <div className="goal-chip">
+                          <span>🎯</span>
+                          <span>Ongoing</span>
+                        </div>
+                      </div>
+                      <div className="goal-actions">
+                        <button
+                          className="goal-btn primary"
+                          onClick={() => startEditingGoal(goal)}
+                        >
+                          Update
+                        </button>
+                        <button
+                          className="goal-btn secondary"
+                          onClick={() => handleDeleteGoal(goal.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div className="goal-collaboration">
-                  <span className="goal-collaboration-label">In collaboration with</span>
-                  <span className="goal-collaboration-users">{goal.collaborators.join(', ')}</span>
-                </div>
-                <div className="goal-progress-section">
-                  <span className="goal-progress-label">{goal.progress}%</span>
-                  <div className="goal-progressbar">
-                    <div
-                      className="goal-progressfill"
-                      style={{ width: `${goal.progress}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="goal-actions">
-                  <button className="goal-btn primary">Continue</button>
-                  <button className="goal-btn secondary">Details</button>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
 

@@ -183,9 +183,9 @@ export const Friends = ({ onLogout }) => {
           <Link className="nav-link active" to="/friends">
             Friends
           </Link>
-          <a className="nav-link" href="#goals">
+          <Link className="nav-link" to="/goals">
             Goals
-          </a>
+          </Link>
           <a className="nav-link" href="#account">
             My Account
           </a>

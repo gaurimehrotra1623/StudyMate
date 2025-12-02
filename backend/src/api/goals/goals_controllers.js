@@ -1,5 +1,21 @@
 const goalsService = require('./goals_services');
 module.exports = {
+  getGoals: async (req, res) => {
+    try {
+      const userId = req.user.id || req.user.user_id;
+      const goals = await goalsService.getGoalsForUser(userId);
+      return res.status(200).json({
+        success: true,
+        data: goals
+      });
+    } catch (err) {
+      console.error('Get Goals error:', err);
+      return res.status(500).json({
+        success: false,
+        message: err.message || "Server error"
+      });
+    }
+  },
   getGoalById :
     async (req, res)=>{
       try {

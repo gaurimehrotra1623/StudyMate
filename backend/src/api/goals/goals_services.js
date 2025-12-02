@@ -2,6 +2,12 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 module.exports = {
+  getGoalsForUser: async (userId) => {
+    return await prisma.goal.findMany({
+      where: { owner_id: Number(userId) },
+      orderBy: { due_date: 'asc' }
+    });
+  },
   getGoalById: async (goalId) => {
     return await prisma.goal.findUnique({
       where: { goal_id: Number(goalId) },
@@ -24,6 +30,9 @@ module.exports = {
   },
 
   updateGoal: async (goalId, updateData) => {
+    if (updateData.due_date) {
+      updateData.due_date = new Date(updateData.due_date);
+    }
     return await prisma.goal.update({
       where: { goal_id: Number(goalId) },
       data: updateData

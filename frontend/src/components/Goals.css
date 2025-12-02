@@ -1,0 +1,63 @@
+ .goals-page-main {
+  padding: 28px 28px 40px 28px;
+}
+
+.goals-page-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 22px 24px 22px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid #E5E7EB;
+}
+
+.goals-page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.goals-page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.goals-count-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #EEF2FF;
+  color: #4338CA;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.goals-search-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.goals-search-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid #E5E7EB;
+  font-size: 14px;
+}
+
+.goals-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.goals-empty {
+  padding: 20px 4px;
+  color: #6B7280;
+  font-size: 14px;
+}
+
+

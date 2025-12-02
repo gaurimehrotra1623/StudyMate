@@ -5,6 +5,7 @@ import LoginPage from './components/LoginPage'
 import Dashboard from './components/Dashboard'
 import NotFound from './components/NotFound'
 import { Friends } from './components/Friends'
+import Goals from './components/Goals'
 import './App.css'
 
 const API_BASE_URL = //'http://localhost:3000'
@@ -16,33 +17,23 @@ function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const stored = localStorage.getItem('studymate:isAuthenticated')
-      const token = localStorage.getItem('token')
-
-      if (stored === 'true' && token) {
-        try {
-          await axios.get(`${API_BASE_URL}/api/dashboard`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          })
-          setIsAuthenticated(true)
-        } catch (error) {
-          console.log('Auth check failed:', error)
-          localStorage.removeItem('studymate:isAuthenticated')
-          localStorage.removeItem('token')
-          setIsAuthenticated(false)
-        }
+      try {
+        await axios.get(`${API_BASE_URL}/api/dashboard`, {
+          withCredentials: true
+        })
+        setIsAuthenticated(true)
+      } catch (error) {
+        setIsAuthenticated(false)
       }
-
       setIsCheckingAuth(false)
     }
 
     checkAuth()
   }, [])
 
-  const handleLogin = (token) => {
-    localStorage.setItem('token', token)
+  const handleLogin = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('studymate:isAuthenticated')
     localStorage.setItem('studymate:isAuthenticated', 'true')
     setIsAuthenticated(true)
   }
@@ -50,6 +41,8 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('studymate:isAuthenticated')
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
     setIsAuthenticated(false)
   }
 
@@ -110,6 +103,16 @@ function App() {
         element={
           isAuthenticated ? (
             <Friends onLogout={handleLogout} />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/goals"
+        element={
+          isAuthenticated ? (
+            <Goals onLogout={handleLogout} />
           ) : (
             <Navigate to="/" replace />
           )
