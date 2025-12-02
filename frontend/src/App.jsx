@@ -6,7 +6,7 @@ import Dashboard from './components/Dashboard'
 import NotFound from './components/NotFound'
 import './App.css'
 
-const API_BASE_URL = 'http://localhost:3000'
+const API_BASE_URL =  'https://studymate-1fui.onrender.com'   //'http://localhost:3000' 
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -16,14 +16,12 @@ function App() {
     const checkAuth = async () => {
     const stored = localStorage.getItem('studymate:isAuthenticated')
     if (stored === 'true') {
-        // Verify token is still valid by making a test request
         try {
           await axios.get(`${API_BASE_URL}/api/dashboard`, {
             withCredentials: true
           })
       setIsAuthenticated(true)
         } catch (error) {
-          // Token invalid, clear auth state
           console.log('Auth check failed:', error)
           localStorage.removeItem('studymate:isAuthenticated')
           setIsAuthenticated(false)

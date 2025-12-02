@@ -106,6 +106,21 @@ module.exports = {
     return goal
   },
   addFriend: async (userId, friendId) => {
+    // Prevent self-friending
+    if (userId === friendId) {
+      throw new Error('Cannot add yourself as a friend')
+    }
+
+    // Verify friend exists
+    const friend = await prisma.users.findUnique({
+      where: { user_id: friendId }
+    })
+
+    if (!friend) {
+      throw new Error('User not found')
+    }
+
+    // Check if friendship already exists
     const existingFriendship = await prisma.friendship.findFirst({
       where: {
         OR: [
@@ -118,21 +133,24 @@ module.exports = {
     if (existingFriendship) {
       throw new Error('Friendship already exists')
     }
+
+    // Create friendship (always store with smaller ID as userA_id for consistency)
+    const userA_id = userId < friendId ? userId : friendId
+    const userB_id = userId < friendId ? friendId : userId
+
     const friendship = await prisma.friendship.create({
       data: {
-        userA_id: userId,
-        userB_id: friendId
+        userA_id,
+        userB_id
       }
     })
-    const friend = await prisma.users.findUnique({
-      where: { user_id: friendId }
-    })
 
+    // Create activity
     await prisma.activity.create({
       data: {
         user_id: userId,
         type: 'added_friend',
-        message: `Added ${friend?.username || 'friend'} as a friend`
+        message: `Added ${friend.username} as a friend`
       }
     })
 

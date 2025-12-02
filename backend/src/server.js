@@ -3,6 +3,7 @@ const dotenv=require('dotenv')
 const cors = require('cors')
 const router = require('./api/auth/auth_routes.js')
 const dashboardRoutes = require("./api/dashboard/dashboard_routes");
+const friendshipRoutes = require("./api/friends/friends_routes");
 const cookie = require('cookie-parser')
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -45,6 +46,8 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', router)
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/friends", friendshipRoutes);
+
 app.listen(port, ()=>{
   console.log(`Congrats! Server started on port ${port}!`)
   console.log(`Server is accessible at http://localhost:${port}`)

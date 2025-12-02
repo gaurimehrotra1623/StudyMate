@@ -444,11 +444,11 @@
   font-size: 16px;
 }
 
-.friend-description {
+.friend-email {
   margin: 0 0 8px 0;
-  color: #4B5563;
-  font-size: 14px;
-  font-weight: 500;
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 400;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -674,6 +674,45 @@
   
   .dashboard-subtitle {
     font-size: 16px;
+  }
+}
+
+/* Toast Notification */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideInUp 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 250px;
+}
+
+.toast-success {
+  background-color: #10B981;
+  color: white;
+}
+
+.toast-error {
+  background-color: #EF4444;
+  color: white;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 

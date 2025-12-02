@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import './Dashboard.css'
 
-const API_BASE_URL = 'https://studymate-1fui.onrender.com'
+const API_BASE_URL =  'https://studymate-1fui.onrender.com' 
 
 const Dashboard = ({ onLogout }) => {
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState({ name: '', streakDays: 0 })
+  const [user, setUser] = useState({ name: ''})
   const [ongoingGoals, setOngoingGoals] = useState([])
   const [friendSuggestions, setFriendSuggestions] = useState([])
   const [friendsActivity, setFriendsActivity] = useState([])
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
 
   const handleLogout = async () => {
     try {
@@ -41,8 +42,11 @@ const Dashboard = ({ onLogout }) => {
       if (response.data.success && response.data.data) {
         const data = response.data.data
         if (data.user) {
+          const displayName = (data.user.username && data.user.username.trim()) 
+            ? data.user.username.trim() 
+            : (data.user.email ? data.user.email.split('@')[0] : 'User')
           setUser({
-            name: data.user.username || data.user.email?.split('@')[0] || 'User',
+            name: displayName,
             streakDays: 7
           })
         }
@@ -63,16 +67,17 @@ const Dashboard = ({ onLogout }) => {
           })) || []
         setOngoingGoals(transformedGoals)
 
-        const avatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁']
+        const avatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮']
         const transformedSuggestions =
-          data.friendSuggestions?.map((friend, index) => ({
+        data.friendSuggestions?.slice(0, 6).map((friend, index) => ({
             id: friend.user_id,
             name: friend.username,
+            email: friend.email,
             avatar: avatars[index % avatars.length]
           })) || []
         setFriendSuggestions(transformedSuggestions)
               
-        const activityAvatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁']
+        const activityAvatars = ['🐱', '🐞', '🐥', '🐭', '🦊', '🦁', '🐸', '👾', '🐬', '🦄', '🐮']
         const transformedActivity =
           data.friendsActivity?.map((activity, index) => ({
             id: activity.id,
@@ -106,8 +111,33 @@ const Dashboard = ({ onLogout }) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
-  const handleAddFriend = (friendId) => {
-    console.log('Adding friend:', friendId)
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type })
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: 'success' })
+    }, 3000)
+  }
+
+  const handleAddFriend = async (friendId) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/dashboard/friends`,
+        { friendId },
+        {
+          withCredentials: true
+        }
+      )
+
+      if (response.data.success) {
+        // Remove the friend from suggestions without reloading
+        setFriendSuggestions(prev => prev.filter(friend => friend.id !== friendId))
+        showToast('Friend added successfully!', 'success')
+      }
+    } catch (error) {
+      console.error('Error adding friend:', error)
+      const errorMessage = error.response?.data?.message || 'Failed to add friend'
+      showToast(errorMessage, 'error')
+    }
   }
 
   const handleReact = (activityId, reaction) => {
@@ -182,7 +212,7 @@ const Dashboard = ({ onLogout }) => {
       <main className="dashboard-main">
         <header className="main-header">
           <div className="welcome">
-            <h1 className="welcome-title">Welcome back, {user.name} 👋</h1>
+            <h1 className="welcome-title">Welcome back!!📚</h1>
             <p className="welcome-sub">Keep up the momentum. You’re doing great!</p>
           </div>
         </header>
@@ -283,7 +313,7 @@ const Dashboard = ({ onLogout }) => {
               <div key={friend.id} className="friend-suggestion-card">
                 <div className="friend-avatar">{friend.avatar}</div>
                 <h3 className="friend-name">{friend.name}</h3>
-                <p className="friend-description">{friend.description}</p>
+                <p className="friend-email">{friend.email}</p>
                 <button 
                   className="friend-add-btn"
                   onClick={() => handleAddFriend(friend.id)}
@@ -354,6 +384,12 @@ const Dashboard = ({ onLogout }) => {
           </div>
         </section>
       </main>
+      
+      {toast.show && (
+        <div className={`toast toast-${toast.type}`}>
+          {toast.type === 'success' ? '✓' : '✕'} {toast.message}
+        </div>
+      )}
     </div>
   )
 }
