@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 import './Dashboard.css'
 import './Goals.css'
 
-const API_BASE_URL = 'http://localhost:3000'
-// 'https://studymate-1fui.onrender.com'
+const API_BASE_URL = //'http://localhost:3000'
+'https://studymate-1fui.onrender.com'
 
 const Goals = ({ onLogout }) => {
   const [goals, setGoals] = useState([])
