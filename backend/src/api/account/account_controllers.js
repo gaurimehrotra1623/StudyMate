@@ -12,32 +12,53 @@ const deleteAccount = async (req, res) => {
       })
     }
 
-    await prisma.$transaction(async (tx) => {
-      await tx.goal_collaborators.deleteMany({
+    console.log('Deleting account for user:', userId)
+
+    try {
+      await prisma.activity.deleteMany({
         where: { user_id: userId }
       })
+      console.log('Deleted activities')
+    } catch (err) {
+      console.log('Error deleting activities:', err.message)
+    }
 
-      await tx.goals.deleteMany({
+    try {
+      await prisma.goal.deleteMany({
         where: { owner_id: userId }
       })
+      console.log('Deleted goals')
+    } catch (err) {
+      console.log('Error deleting goals:', err.message)
+    }
 
-      await tx.friendships.deleteMany({
+    try {
+      await prisma.friendship.deleteMany({
         where: {
           OR: [
-            { user_id: userId },
-            { friend_id: userId }
+            { userA_id: userId },
+            { userB_id: userId }
           ]
         }
       })
+      console.log('Deleted friendships')
+    } catch (err) {
+      console.log('Error deleting friendships:', err.message)
+    }
 
-      await tx.refresh_token.deleteMany({
+    try {
+      await prisma.refresh_token.deleteMany({
         where: { user_id: userId }
       })
+      console.log('Deleted refresh tokens')
+    } catch (err) {
+      console.log('Error deleting refresh tokens:', err.message)
+    }
 
-      await tx.users.delete({
-        where: { user_id: userId }
-      })
+    await prisma.users.delete({
+      where: { user_id: userId }
     })
+    console.log('Deleted user')
 
     res.clearCookie('token', {
       httpOnly: true,
@@ -59,6 +80,7 @@ const deleteAccount = async (req, res) => {
     })
   } catch (error) {
     console.error('Delete account error:', error)
+    console.error('Error stack:', error.stack)
     return res.status(500).json({
       success: false,
       message: error.message || 'Failed to delete account'
