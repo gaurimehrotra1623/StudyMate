@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom'
 import './Dashboard.css'
 import './Account.css'
 
-const API_BASE_URL = 'http://localhost:3000'
-// 'https://studymate-1fui.onrender.com'
+const API_BASE_URL = //'http://localhost:3000'
+'https://studymate-1fui.onrender.com'
 
 const Account = ({ onLogout }) => {
   const [user, setUser] = useState({ username: '', email: '' })
@@ -25,22 +25,17 @@ const Account = ({ onLogout }) => {
         withCredentials: true
       })
 
-      console.log('Account page - API response:', response.data)
-
-      if (response.data.success && response.data.data?.user) {
-        const userData = response.data.data.user
-        console.log('Account page - User data:', userData)
-        setUser({
-          username: userData.username || '',
-          email: userData.email || ''
-        })
-      } else {
-        console.log('Account page - No user data in response')
-        setError('User data not found')
+      if (response.data.success && response.data.data) {
+        const data = response.data.data
+        if (data.user) {
+          setUser({
+            username: data.user.username || '',
+            email: data.user.email || ''
+          })
+        }
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
-      console.error('Error response:', error.response?.data)
       setError('Failed to load user data')
     } finally {
       setLoading(false)
