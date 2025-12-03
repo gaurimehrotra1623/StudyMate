@@ -187,9 +187,9 @@ export const Friends = ({ onLogout }) => {
           <Link className="nav-link" to="/goals">
             Goals
           </Link>
-          <a className="nav-link" href="#account">
+          <Link className="nav-link" to="/account">
             My Account
-          </a>
+          </Link>
         </nav>
         {onLogout && (
           <button onClick={onLogout} className="sidebar-logout">

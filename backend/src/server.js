@@ -5,6 +5,7 @@ const router = require('./api/auth/auth_routes.js')
 const dashboardRoutes = require("./api/dashboard/dashboard_routes");
 const friendshipRoutes = require("./api/friends/friends_routes");
 const goalsRoutes = require("./api/goals/goals_routes");
+const accountRoutes = require("./api/account/account_routes");
 const cookie = require('cookie-parser')
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -49,6 +50,7 @@ app.use('/api/auth', router)
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/friends", friendshipRoutes);
 app.use("/api/goals", goalsRoutes);
+app.use("/api/account", accountRoutes);
 
 app.listen(port, ()=>{
   console.log(`Congrats! Server started on port ${port}!`)

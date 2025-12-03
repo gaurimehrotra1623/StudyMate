@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard'
 import NotFound from './components/NotFound'
 import { Friends } from './components/Friends'
 import Goals from './components/Goals'
+import Account from './components/Account'
 import './App.css'
 
 const API_BASE_URL = 'https://studymate-1fui.onrender.com'
@@ -27,7 +28,7 @@ function App() {
         return
       }
 
-      const protectedRoutes = ['/dashboard', '/friends', '/goals']
+      const protectedRoutes = ['/dashboard', '/friends', '/goals', '/account']
       const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route))
 
       if (!isProtectedRoute) {
@@ -147,6 +148,16 @@ function App() {
         element={
           isAuthenticated ? (
             <Goals onLogout={handleLogout} />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/account"
+        element={
+          isAuthenticated ? (
+            <Account onLogout={handleLogout} />
           ) : (
             <Navigate to="/" replace />
           )

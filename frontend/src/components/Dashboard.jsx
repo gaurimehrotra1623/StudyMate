@@ -315,7 +315,7 @@ const Dashboard = ({ onLogout }) => {
           <a className="nav-link active" href="#home">Home</a>
           <Link className="nav-link" to="/friends">Friends</Link>
           <Link className="nav-link" to="/goals">Goals</Link>
-          <a className="nav-link" href="#account">My Account</a>
+          <Link className="nav-link" to="/account">My Account</Link>
         </nav>
         <button onClick={handleLogout} className="sidebar-logout">Logout</button>
       </aside>
@@ -488,7 +488,7 @@ const Dashboard = ({ onLogout }) => {
         <section id="friends-activity" className="friends-activity-section">
           <div className="section-head">
             <h2 className="section-title">What Friends Are Doing</h2>
-            <a href="#all-activity" className="section-link">View all</a>
+            {/* <a href="#all-activity" className="section-link">View all</a> */}
           </div>
 
           <div className="friends-activity-list">

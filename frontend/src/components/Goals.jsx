@@ -121,9 +121,9 @@ const Goals = ({ onLogout }) => {
           <Link className="nav-link active" to="/goals">
             Goals
           </Link>
-          <a className="nav-link" href="#account">
+          <Link className="nav-link" to="/account">
             My Account
-          </a>
+          </Link>
         </nav>
         {onLogout && (
           <button onClick={onLogout} className="sidebar-logout">
